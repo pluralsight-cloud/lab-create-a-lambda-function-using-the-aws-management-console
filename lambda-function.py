@@ -35,7 +35,7 @@ def lambda_handler(event, context):
             return {
                 'statusCode': 400,
                 'body': json.dumps({
-                    'error': 'Invalid units. Use \"C\" for Celsius or \"F\" for Fahrenheit'
+                    'error': 'Invalid units. Use "C" for Celsius or "F" for Fahrenheit'
                 })
             }
 
@@ -43,3 +43,40 @@ def lambda_handler(event, context):
         if from_unit == to_unit:
             converted_temp = temperature
         elif from_unit == 'C' and to_unit == 'F':
+            converted_temp = (temperature * 9/5) + 32
+        else:  # from_unit == 'F' and to_unit == 'C'
+            converted_temp = (temperature - 32) * 5/9
+
+        # Round to 2 decimal places
+        converted_temp = round(converted_temp, 2)
+
+        # Log the conversion
+        print(f"Converted {temperature}°{from_unit} to {converted_temp}°{to_unit}")
+        print("=== Lambda Test Completed Successfully ===")
+
+        # Return successful response
+        return {
+            'statusCode': 200,
+            'body': json.dumps({
+                'original': {
+                    'temperature': temperature,
+                    'unit': from_unit
+                },
+                'converted': {
+                    'temperature': converted_temp,
+                    'unit': to_unit
+                },
+                'message': f'{temperature}°{from_unit} equals {converted_temp}°{to_unit}'
+            })
+        }
+
+    except Exception as e:
+        print("=== Lambda Test Ended with Error ===")
+        print(f"Error details: {str(e)}")
+        return {
+            'statusCode': 500,
+            'body': json.dumps({
+                'error': 'Internal server error',
+                'details': str(e)
+            })
+        }
